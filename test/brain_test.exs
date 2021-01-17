@@ -4,6 +4,57 @@ defmodule BrainTest do
   doctest Brain
 
   test "checks updated task lists" do
+    task_1 =
+      TodoTask.new("1", "task 1", %{
+        start: "2021-01-1T00:00:00.000Z",
+        end: "2021-01-1T01:00:00.000Z"
+      })
+
+    task_2 =
+      TodoTask.new("2", "task 2", %{
+        start: "2021-01-1T00:00:00.000Z",
+        end: "2021-01-1T01:00:00.000Z"
+      })
+
+    task_3 =
+      TodoTask.new("3", "task 3", %{
+        start: "2021-01-1T00:00:00.000Z",
+        end: "2021-01-1T01:00:00.000Z"
+      })
+
+    task_4 =
+      TodoTask.new("4", "task 4", %{
+        start: "2021-01-1T00:00:00.000Z",
+        end: "2021-01-1T01:00:00.000Z"
+      })
+
+    task_5 =
+      TodoTask.new("5", "task 5", %{
+        start: "2021-01-1T00:00:00.000Z",
+        end: "2021-01-1T01:00:00.000Z"
+      })
+
+    task_6 =
+      TodoTask.new("6", "task 6", %{
+        start: "2021-01-1T00:00:00.000Z",
+        end: "2021-01-1T01:00:00.000Z"
+      })
+
+    task_7 =
+      TodoTask.new("7", "task 7", %{
+        start: "2021-01-1T00:00:00.000Z",
+        end: "2021-01-1T01:00:00.000Z"
+      })
+
+    task_1_updated =
+      TodoTask.new("1", "task 1 updated", {"2021-01-1T00:00:00.000Z", "2021-01-1T01:00:00.000Z"})
+
+    task_2_updated =
+      TodoTask.new("2", "task 2 updated", {"2021-01-1T00:00:00.000Z", "2021-01-1T01:00:00.000Z"})
+
+    task_3_updated =
+      TodoTask.new("3", "task 3 updated", {"2021-01-1T00:00:00.000Z", "2021-01-1T01:00:00.000Z"})
+
     tests = [
       {
         "empty",
@@ -15,11 +66,11 @@ defmodule BrainTest do
         "add new to empty",
         %{},
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z")
+          "1" => task_1
         },
         [
           new: [
-            TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z")
+            task_1
           ],
           updated: [],
           deleted: []
@@ -28,17 +79,17 @@ defmodule BrainTest do
       {
         "add multiple",
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z")
+          "1" => task_1
         },
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z"),
-          "2" => TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z"),
-          "3" => TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z")
+          "1" => task_1,
+          "2" => task_2,
+          "3" => task_3
         },
         [
           new: [
-            TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z"),
-            TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z")
+            task_2,
+            task_3
           ],
           updated: [],
           deleted: []
@@ -47,15 +98,15 @@ defmodule BrainTest do
       {
         "update task due time",
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z")
+          "1" => task_1
         },
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-2T00:00:00.000Z")
+          "1" => task_1_updated
         },
         [
           new: [],
           updated: [
-            TodoTask.new("1", "task 1", "2021-01-2T00:00:00.000Z")
+            task_1_updated
           ],
           deleted: []
         ]
@@ -63,108 +114,85 @@ defmodule BrainTest do
       {
         "update multiple",
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z"),
-          "2" => TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z"),
-          "3" => TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z")
+          "1" => task_1,
+          "2" => task_2,
+          "3" => task_3
         },
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z"),
-          "2" => TodoTask.new("2", "task 4", "2021-01-4T00:00:00.000Z"),
-          "3" => TodoTask.new("3", "task 5", "2021-01-5T00:00:00.000Z")
+          "1" => task_1,
+          "2" => task_2_updated,
+          "3" => task_3_updated
         },
         [
           new: [],
-          updated: [
-            TodoTask.new("2", "task 4", "2021-01-4T00:00:00.000Z"),
-            TodoTask.new("3", "task 5", "2021-01-5T00:00:00.000Z")
-          ],
+          updated: [task_2_updated, task_3_updated],
           deleted: []
         ]
       },
       {
         "delete task",
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z")
+          "1" => task_1
         },
         %{},
         [
           new: [],
           updated: [],
-          deleted: [
-            TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z")
-          ]
+          deleted: [task_1]
         ]
       },
       {
         "delete multiple",
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z"),
-          "2" => TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z"),
-          "3" => TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z")
+          "1" => task_1,
+          "2" => task_2,
+          "3" => task_3
         },
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z")
+          "1" => task_1
         },
         [
           new: [],
           updated: [],
-          deleted: [
-            TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z"),
-            TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z")
-          ]
+          deleted: [task_2, task_3]
         ]
       },
       {
         "add, update, and delete",
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z"),
-          "2" => TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z")
+          "1" => task_1,
+          "2" => task_2
         },
         %{
-          "1" => TodoTask.new("1", "task 4", "2021-01-4T00:00:00.000Z"),
-          "3" => TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z")
+          "1" => task_1_updated,
+          "3" => task_3
         },
         [
-          new: [
-            TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z")
-          ],
-          updated: [
-            TodoTask.new("1", "task 4", "2021-01-4T00:00:00.000Z")
-          ],
-          deleted: [
-            TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z")
-          ]
+          new: [task_3],
+          updated: [task_1_updated],
+          deleted: [task_2]
         ]
       },
       {
         "add, update, and delete multiple",
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z"),
-          "2" => TodoTask.new("2", "task 2", "2021-01-2T00:00:00.000Z"),
-          "3" => TodoTask.new("3", "task 3", "2021-01-3T00:00:00.000Z"),
-          "4" => TodoTask.new("4", "task 4", "2021-01-4T00:00:00.000Z"),
-          "5" => TodoTask.new("5", "task 5", "2021-01-5T00:00:00.000Z")
+          "1" => task_1,
+          "2" => task_2,
+          "3" => task_3,
+          "4" => task_4,
+          "5" => task_5
         },
         %{
-          "1" => TodoTask.new("1", "task 1", "2021-01-1T00:00:00.000Z"),
-          "2" => TodoTask.new("2", "task 8", "2021-01-8T00:00:00.000Z"),
-          "3" => TodoTask.new("3", "task 9", "2021-01-9T00:00:00.000Z"),
-          "6" => TodoTask.new("6", "task 6", "2021-01-6T00:00:00.000Z"),
-          "7" => TodoTask.new("7", "task 7", "2021-01-7T00:00:00.000Z")
+          "1" => task_1,
+          "2" => task_2_updated,
+          "3" => task_3_updated,
+          "6" => task_6,
+          "7" => task_7
         },
         [
-          new: [
-            TodoTask.new("6", "task 6", "2021-01-6T00:00:00.000Z"),
-            TodoTask.new("7", "task 7", "2021-01-7T00:00:00.000Z")
-          ],
-          updated: [
-            TodoTask.new("2", "task 8", "2021-01-8T00:00:00.000Z"),
-            TodoTask.new("3", "task 9", "2021-01-9T00:00:00.000Z")
-          ],
-          deleted: [
-            TodoTask.new("4", "task 4", "2021-01-4T00:00:00.000Z"),
-            TodoTask.new("5", "task 5", "2021-01-5T00:00:00.000Z")
-          ]
+          new: [task_6, task_7],
+          updated: [task_2_updated, task_3_updated],
+          deleted: [task_4, task_5]
         ]
       }
     ]

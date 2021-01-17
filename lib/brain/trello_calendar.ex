@@ -2,10 +2,10 @@ defmodule Brain.TrelloCalendar do
   use GenServer
 
   defmodule TodoTask do
-    defstruct id: "", name: "", due: ""
+    defstruct id: "", name: "", time: %{start: "", end: ""}
 
-    def new(id, name, due) do
-      %TodoTask{id: id, name: name, due: due}
+    def new(id, name, time) do
+      %TodoTask{id: id, name: name, time: time}
     end
   end
 
@@ -64,10 +64,18 @@ defmodule Brain.TrelloCalendar do
     token = Application.fetch_env!(:brain, :trello_token)
 
     HTTPoison.get!(
-      "https://api.trello.com/1/boards/#{id}/cards?fields=name,due&key=#{key}&token=#{token}"
+      "https://api.trello.com/1/boards/#{id}/cards?fields=name,due&customFieldItems=true&key=#{
+        key
+      }&token=#{token}"
     ).body
     |> Jason.decode!()
-    |> Enum.map(fn obj -> TodoTask.new(obj["id"], obj["name"], obj["due"]) end)
+    |> Enum.map(fn obj ->
+      TodoTask.new(
+        obj["id"],
+        obj["name"],
+        %{start: obj["due"], end: Enum.at(obj["customFieldItems"], 0)["value"]["date"]}
+      )
+    end)
     |> Enum.reduce(%{}, fn task, acc -> Map.put(acc, task.id, task) end)
   end
 end
