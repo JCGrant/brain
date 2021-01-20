@@ -25,4 +25,7 @@ brain-*.tar
 
 # Temporary files for e.g. tests
 /tmp
-config/secret.exs
+
+.DS_Store
+
+config/secret/

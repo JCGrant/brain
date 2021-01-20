@@ -10,7 +10,7 @@ defmodule Brain.Application do
     children = [
       # Starts a worker by calling: Brain.Worker.start_link(arg)
       # {Brain.Worker, arg}
-      Brain.TrelloCalendar
+      Brain.Todo
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
