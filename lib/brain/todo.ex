@@ -31,8 +31,15 @@ defmodule Brain.Todo do
     board_id = Application.fetch_env!(:brain, :trello_board_id)
     google_calendar_id = Application.fetch_env!(:brain, :google_calendar_id)
 
+    end_date_custom_field_id =
+      Application.fetch_env!(:brain, :trello_end_date_custom_field_id)
+
     current_trello_tasks =
-      get_tasks(&Trello.get_cards/1, [board_id], &Parsers.trello_card_to_task/1)
+      get_tasks(
+        &Trello.Api.Boards.get_cards/1,
+        [board_id],
+        &Parsers.trello_card_to_task/1
+      )
 
     trello_diff = Diff.diff_tasks(tasks, current_trello_tasks)
 
@@ -68,7 +75,17 @@ defmodule Brain.Todo do
     Enum.each(google_calendar_diff.updated, fn task ->
       Logger.log(:info, "updated google calendar task: #{inspect(task)}")
       card = Parsers.task_to_trello_card(task)
-      Trello.update_card(card.id, card)
+
+      Trello.Api.Cards.update_card(card.id, %{
+        name: card.name,
+        due: card.due
+      })
+
+      Trello.Api.Cards.update_custom_field_item(
+        card.id,
+        end_date_custom_field_id,
+        card.custom_field_items |> Enum.at(0)
+      )
     end)
 
     Map.merge(current_trello_tasks, current_google_calendar_tasks)
