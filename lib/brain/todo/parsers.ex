@@ -14,6 +14,7 @@ defmodule Brain.Todo.Parsers do
          %Task{
            id: card.id,
            name: card.name,
+           url: card.url,
            time: %{
              start:
                card.due
@@ -31,6 +32,7 @@ defmodule Brain.Todo.Parsers do
       id: task.id,
       name: task.name,
       due: task.time.start,
+      url: task.url,
       custom_field_items: [
         %Trello.Model.CustomFieldItem{
           id_custom_field:
@@ -43,23 +45,39 @@ defmodule Brain.Todo.Parsers do
     }
   end
 
+  @trello_url_regex ~r/https:\/\/trello.com\/c\/[a-zA-Z0-9]+\/[0-9]+(-[a-z0-9]+)+/
+
+  defp extract_trello_url(string) do
+    case Regex.run(@trello_url_regex, string) do
+      [url | _] -> {:ok, url}
+      _ -> {:error, :no_url}
+    end
+  end
+
   def google_calendar_event_to_task(event) do
-    if event.description != "trello" do
-      {:error, "event not synced with trello"}
+    if event.description == nil do
+      {:error, "no description"}
     else
-      {:ok,
-       %Task{
-         id: event.id,
-         name: event.summary,
-         time: %{
-           start:
-             event.start.dateTime
-             |> DateTime.truncate(:second),
-           end:
-             event.end.dateTime
-             |> DateTime.truncate(:second)
-         }
-       }}
+      case extract_trello_url(event.description) do
+        {:error, :no_url} ->
+          {:error, "no trello url found"}
+
+        {:ok, url} ->
+          {:ok,
+           %Task{
+             id: event.id,
+             name: event.summary,
+             url: url,
+             time: %{
+               start:
+                 event.start.dateTime
+                 |> DateTime.truncate(:second),
+               end:
+                 event.end.dateTime
+                 |> DateTime.truncate(:second)
+             }
+           }}
+      end
     end
   end
 
@@ -67,7 +85,7 @@ defmodule Brain.Todo.Parsers do
     %GoogleApi.Calendar.V3.Model.Event{
       id: task.id,
       summary: task.name,
-      description: "trello",
+      description: task.url,
       start: %GoogleApi.Calendar.V3.Model.EventDateTime{
         dateTime: task.time.start
       },

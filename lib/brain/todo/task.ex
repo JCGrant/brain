@@ -4,12 +4,14 @@ defmodule Brain.Todo.Task do
   typedstruct enforce: true do
     field(:id, String.t())
     field(:name, String.t())
+    field(:url, String.t())
     field(:time, %{start: DateTime.t(), end: DateTime.t()})
   end
 
   def equals(task1, task2) do
     task1.id == task2.id &&
       task1.name == task2.name &&
+      task1.url == task2.url &&
       DateTime.compare(task1.time.start, task2.time.start) == :eq &&
       DateTime.compare(task1.time.end, task2.time.end) == :eq
   end

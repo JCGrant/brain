@@ -40,6 +40,7 @@ defmodule Trello.Model do
     typedstruct do
       field(:id, String.t(), enforce: true)
       field(:name, String.t(), enforce: true)
+      field(:url, String.t(), enforce: true)
       field(:due, DateTime.t())
 
       field(
@@ -53,6 +54,7 @@ defmodule Trello.Model do
       %Card{
         id: json["id"],
         name: json["name"],
+        url: json["url"],
         due:
           Utils.maybe_map(json["due"], fn due ->
             due |> DateTime.from_iso8601() |> elem(1)
