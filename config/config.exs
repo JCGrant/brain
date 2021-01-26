@@ -8,9 +8,9 @@ config :brain,
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.events"
   ],
-  google_refresh_token_path: "config/secret/refresh_token.txt"
+  google_refresh_token: "config/secret/refresh_token.txt" |> File.read!
 
 config :goth,
-  json: "config/secret/goth_credentials.json" |> File.read!()
+  config_module: GoogleAuth.Config
 
 import_config "secret/config.exs"

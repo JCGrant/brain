@@ -1,18 +1,24 @@
 defmodule GoogleAuth do
+  @google_credentials Application.fetch_env!(:brain, :google_credentials_path)
+                      |> File.read!()
+                      |> Jason.decode!()
+                      |> Map.get("web")
+
+  def get_google_credentials do
+    @google_credentials
+  end
+
   @doc """
   https://developers.google.com/identity/protocols/oauth2/web-server
   """
   def get_refresh_token do
-    google_credentials =
-      Application.fetch_env!(:brain, :google_credentials_path)
-      |> File.read!()
-      |> Jason.decode!()
-      |> Map.get("web")
-
-    auth_uri = google_credentials["auth_uri"]
-    client_id = google_credentials["client_id"]
-
-    redirect_uri = Enum.at(google_credentials["redirect_uris"], 0)
+    %{
+      "client_id" => client_id,
+      "client_secret" => client_secret,
+      "auth_uri" => auth_uri,
+      "token_uri" => token_uri,
+      "redirect_uris" => [redirect_uri]
+    } = get_google_credentials()
 
     scope = Application.fetch_env!(:brain, :google_scopes) |> Enum.join("+")
 
@@ -34,19 +40,19 @@ defmodule GoogleAuth do
       |> URI.decode_query()
       |> Map.get("code")
 
-    token_uri = google_credentials["token_uri"]
-    client_secret = google_credentials["client_secret"]
+    %{"refresh_token" => refresh_token} =
+      HTTPoison.post!(
+        token_uri,
+        Jason.encode!(%{
+          code: auth_code,
+          client_id: client_id,
+          client_secret: client_secret,
+          redirect_uri: redirect_uri,
+          grant_type: "authorization_code"
+        })
+      ).body
+      |> Jason.decode!()
 
-    HTTPoison.post!(
-      token_uri,
-      Jason.encode!(%{
-        code: auth_code,
-        client_id: client_id,
-        client_secret: client_secret,
-        redirect_uri: redirect_uri,
-        grant_type: "authorization_code"
-      })
-    ).body
-    |> Jason.decode!()
+    IO.puts(refresh_token)
   end
 end
